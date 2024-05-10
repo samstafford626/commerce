@@ -3,8 +3,16 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
+from django import forms
+from .models import User, Listing, Bid, Comment
 
-from .models import User
+class CreateListingForm(forms.Form):
+    title = forms.CharField(label="Title")
+    description = forms.CharField(label="Description")
+    starting_bid = forms.DecimalField(label="Starting Bid")
+    image_url = forms.URLField(label="Image URL")
+    category = forms.CharField(label="Category")
 
 
 def index(request):
@@ -61,3 +69,27 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+    
+
+@login_required
+def create(request):
+    if request.method == "POST":
+        form = CreateListingForm(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data["title"]
+            description = form.cleaned_data["description"]
+            starting_bid = form.cleaned_data["starting_bid"]
+            image_url = form.cleaned_data["image_url"]
+            category = form.cleaned_data["category"]
+            user = request.user
+            listing = Listing(title=title, description=description, starting_bid=starting_bid, image_url=image_url, category=category, user=user)
+            listing.save()
+            return HttpResponseRedirect(reverse("index"))
+        else:
+            return render(request, "auctions/create.html", {
+                "form": form
+            })
+    
+    return render(request, "auctions/create.html", {
+        "form": CreateListingForm()
+    })
