@@ -1,0 +1,38 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ listing.title }}</h1>
+        <p>{{ listing.description }}</p>
+        <p>{{ listing.current_bid }}</p>
+        {% if user == listing.winner and listing.active == False %}
+        <p>YOU WON</p>
+        {% endif %}
+        <img src="{{ listing.image_url}}" alt="Photo of {{ listing.title}}">
+        <p>Listed on {{ listing.date }}</p>
+        {% if user.is_authenticated %}
+        <form action="{% url 'make_bid' %}" method="POST">
+            {% csrf_token %}
+            <input type="number" step=".01" name="bid" placeholder="0.00">
+            <input type="hidden" name="listing_id" value="{{ listing.id }}">
+            <input type="submit">
+        </form>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <form action="{% url 'make_comment' %}" method="POST">
+                {% csrf_token %}
+                <textarea name="comment" placeholder="Make a comment">
+
+                </textarea>
+                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                <input type="submit" value="Comment">
+            </form>
+        {% endif %}
+        {% for comment in comments %}
+            <br>
+            <p>{{ comment.comment }}</p>
+            <p>{{ comment.user }} on {{ comment.date }}</p>
+            <br>
+        {% endfor %}
+    </div>
+{% endblock %}

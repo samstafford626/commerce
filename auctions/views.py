@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django import forms
 from .models import User, Listing, Bid, Comment
+from datetime import datetime
+from decimal import Decimal
 
 class CreateListingForm(forms.Form):
     title = forms.CharField(label="Title")
@@ -85,7 +87,8 @@ def create(request):
             category = form.cleaned_data["category"]
             current_bid = starting_bid
             user = request.user
-            listing = Listing(title=title, description=description, starting_bid=starting_bid, image_url=image_url, category=category, user=user, current_bid=current_bid)
+            date = datetime.now()
+            listing = Listing(title=title, description=description, starting_bid=starting_bid, image_url=image_url, category=category, user=user, current_bid=current_bid, date=date)
             listing.save()
             return HttpResponseRedirect(reverse("index"))
         else:
@@ -109,6 +112,7 @@ def remove_listing(request):
         listing_id = request.POST["listing_id"]
         listing = Listing.objects.get(id=listing_id)
         listing.active = False
+
         listing.save()
         return HttpResponseRedirect(reverse("your_listings"))
     
@@ -120,3 +124,46 @@ def relist(request):
         listing.active = True
         listing.save()
         return HttpResponseRedirect(reverse("your_listings"))
+
+
+def listing(request,  listing_id):
+    listing = Listing.objects.get(id=listing_id)
+    comments = listing.comments.all()
+    return render(request, "auctions/listing.html", {
+        "listing": listing,
+        "comments": comments
+    })
+
+@login_required
+def make_bid(request):
+    if request.method == "POST":
+        bid = Decimal(request.POST["bid"])
+        listing_id = request.POST["listing_id"]
+        listing = Listing.objects.get(id=listing_id)
+        current_bid = listing.current_bid
+        user = request.user
+
+        if bid > current_bid:
+            listing.current_bid = bid
+            listing.winner = user
+            listing.save()
+            new_bid = Bid(bid=bid, user=request.user, listing=listing)
+            new_bid.save()
+        
+        return HttpResponseRedirect(reverse("listing", kwargs={"listing_id": listing_id}))
+    
+
+@login_required
+def make_comment(request):
+    if request.method == "POST":
+        comment = request.POST["comment"]
+        user = request.user
+        listing_id = request.POST["listing_id"]
+        listing = Listing.objects.get(id=listing_id)
+        date = datetime.now()
+
+        new_data = Comment(comment=comment, user=user, listing=listing, date=date)
+        new_data.save()
+
+        return HttpResponseRedirect(reverse("listing", kwargs={"listing_id": listing_id}))
+    

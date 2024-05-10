@@ -16,9 +16,11 @@
                     {% endif %}
                     <img src="{{ listing.image_url }}" class="card-img-top" alt="...">
                     <div class="card-body"> 
-                        <h5 class="card-title">{{ listing.title }}</h5>
-                        <p class="card-text">{{ listing.description }}</p>
-                        <p class="card-text">Current Price: ${{ listing.current_bid }}</p>
+                        <a href="{% url 'listing' listing.id %}">
+                            <h5 class="card-title">{{ listing.title }}</h5>
+                            <p class="card-text">{{ listing.description }}</p>
+                            <p class="card-text">Current Price: ${{ listing.current_bid }}</p>
+                        </a>
                         {% if listing.active %}
                             <form action="{% url 'remove_listing' %}" method="POST" class="mt-2">
                                 {% csrf_token %}

@@ -3,6 +3,7 @@ from django.db import models
 from decimal import Decimal
 
 
+
 class User(AbstractUser):
     pass
 
@@ -17,6 +18,8 @@ class Listing(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="listings")
     active = models.BooleanField(default=True)
     current_bid = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    date = models.DateTimeField()
+    winner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="winner", null=True)
 
 
 class Bid(models.Model):
@@ -31,3 +34,4 @@ class Comment(models.Model):
     comment = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="comments")
+    date = models.DateTimeField()
