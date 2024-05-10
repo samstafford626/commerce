@@ -2,8 +2,8 @@
 
 {% block body %}
     <h2>Active Listings</h2>
-
-    {% for listing in listings %}
+    <div class="container-fluid d-flex g-20">
+        {% for listing in listings %}
         <div class="card" style="width: 18rem">
             <img src="{{ listing.image_url }}" class="card-img-top" alt="...">
             <div class="card-body"> 
@@ -12,5 +12,7 @@
                 <p class="card-text">Current Price: ${{ listing.current_bid }}</p>
             </div>
         </div>
-    {% endfor %}
+        {% endfor %}
+    </div>
+    
 {% endblock %}

@@ -1,3 +1,7 @@
 body {
     padding: 10px;
 }
+
+.g-20 {
+    gap: 20px;
+}

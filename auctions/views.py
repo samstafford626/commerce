@@ -96,3 +96,27 @@ def create(request):
     return render(request, "auctions/create.html", {
         "form": CreateListingForm()
     })
+
+@login_required
+def your_listings(request):
+    return render(request, "auctions/your_listings.html", {
+        "listings": Listing.objects.filter(user=request.user)
+    })
+
+@login_required
+def remove_listing(request):
+    if request.method == "POST":
+        listing_id = request.POST["listing_id"]
+        listing = Listing.objects.get(id=listing_id)
+        listing.active = False
+        listing.save()
+        return HttpResponseRedirect(reverse("your_listings"))
+    
+@login_required
+def relist(request):
+    if request.method == "POST":
+        listing_id = request.POST["listing_id"]
+        listing = Listing.objects.get(id=listing_id)
+        listing.active = True
+        listing.save()
+        return HttpResponseRedirect(reverse("your_listings"))

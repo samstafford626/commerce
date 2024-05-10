@@ -1,0 +1,39 @@
+{% extends 'auctions/layout.html' %}
+
+{% block title %}
+    Your Listings
+{% endblock %}
+
+{% block body %}
+    <h2>Your Listings</h2>
+    <div class="container-fluid d-flex g-20">
+        {% for listing in listings %}
+                <div class="card" style="width: 18rem">
+                    {% if listing.active %}
+                        <span class="badge badge-success mb-1">Active</span>
+                    {% else %}
+                        <span class="badge badge-secondary mb-1">Closed</span>
+                    {% endif %}
+                    <img src="{{ listing.image_url }}" class="card-img-top" alt="...">
+                    <div class="card-body"> 
+                        <h5 class="card-title">{{ listing.title }}</h5>
+                        <p class="card-text">{{ listing.description }}</p>
+                        <p class="card-text">Current Price: ${{ listing.current_bid }}</p>
+                        {% if listing.active %}
+                            <form action="{% url 'remove_listing' %}" method="POST" class="mt-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                <input type="submit" value="Remove Listing" class="btn btn-outline-danger btn-sm">
+                            </form>
+                        {% else %}
+                            <form action="{% url 'relist' %}" method="POST" class="mt-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="listing_id" value="{{ listing.id }}">
+                                <input type="submit" value="Relist" class="btn btn-outline-primary btn-sm">
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>       
+        {% endfor %}
+    </div>
+{% endblock %}
