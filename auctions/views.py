@@ -16,7 +16,9 @@ class CreateListingForm(forms.Form):
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html", {
+        "listings": Listing.objects.filter(active=True)
+    })
 
 
 def login_view(request):
@@ -81,8 +83,9 @@ def create(request):
             starting_bid = form.cleaned_data["starting_bid"]
             image_url = form.cleaned_data["image_url"]
             category = form.cleaned_data["category"]
+            current_bid = starting_bid
             user = request.user
-            listing = Listing(title=title, description=description, starting_bid=starting_bid, image_url=image_url, category=category, user=user)
+            listing = Listing(title=title, description=description, starting_bid=starting_bid, image_url=image_url, category=category, user=user, current_bid=current_bid)
             listing.save()
             return HttpResponseRedirect(reverse("index"))
         else:
